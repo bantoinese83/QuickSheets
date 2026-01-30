@@ -1,5 +1,7 @@
 # QuickSheets
 
+[![CI](https://github.com/bantoinese83/QuickSheets/actions/workflows/ci.yml/badge.svg)](https://github.com/bantoinese83/QuickSheets/actions/workflows/ci.yml) [![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+
 **QuickBooks → Excel in one click.** An Excel add-in that connects to QuickBooks Online and refreshes P&L, Balance Sheet, and Statement of Cash Flows into your workbook.
 
 - **Backend:** Node/TypeScript API (QBO OAuth + Reports, Postgres for tokens).
