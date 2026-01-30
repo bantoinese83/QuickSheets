@@ -19,6 +19,40 @@
 
 **Quick troubleshooting:** Backend won’t start → [TROUBLESHOOTING](docs/TROUBLESHOOTING.md#backend-wont-start). 401 / “Connect first” → [TROUBLESHOOTING](docs/TROUBLESHOOTING.md#401-unauthorized-connect-quickbooks--refresh). 402 / subscription → [TROUBLESHOOTING](docs/TROUBLESHOOTING.md#402-payment-required). Add-in doesn’t load → [TROUBLESHOOTING](docs/TROUBLESHOOTING.md#excel-add-in-doesnt-load). CORS → [TROUBLESHOOTING](docs/TROUBLESHOOTING.md#cors-errors-in-browser).
 
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph Client
+    Excel[Excel]
+    Addin[QuickSheets Add-in<br/>Task Pane]
+  end
+
+  subgraph Backend["Backend API (Node/TS)"]
+    Auth["/auth/qbo, /auth/demo"]
+    API["/api/refresh<br/>/api/create-checkout-session"]
+    Webhook["/webhooks/stripe"]
+  end
+
+  subgraph Data
+    Postgres[(Postgres<br/>users, qbo_connections)]
+    QBO[QuickBooks Online<br/>Reports API]
+    Stripe[Stripe<br/>Checkout & Subscriptions]
+  end
+
+  Excel --> Addin
+  Addin -->|"Connect / Demo / Refresh<br/>(cookie)"| Auth
+  Addin -->|"Refresh (cookie)"| API
+  Auth --> Postgres
+  API --> Postgres
+  API -->|"OAuth + token refresh"| QBO
+  API --> Stripe
+  Stripe -->|"events"| Webhook
+  Webhook --> Postgres
+```
+
+**Flow (short):** User opens the add-in in Excel → **Connect QuickBooks** or **Try with demo data** hits the backend, which sets a session cookie → **Refresh Reports** calls `POST /api/refresh` with that cookie; the backend returns demo data (no QBO) or, if the user has QBO + an active subscription, fetches P&L, Balance Sheet, and Cash Flow from QuickBooks and streams them back → the add-in writes sheets `QS_PnL`, `QS_BS`, `QS_CashFlow`. Report data is not stored; it flows QBO → backend → Excel and is discarded. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for where to look in code.
+
 ## Quick start
 
 ### Option A: Docker (backend + Postgres)
