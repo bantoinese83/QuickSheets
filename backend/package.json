@@ -22,7 +22,7 @@
     "intuit-oauth": "^2.0.6",
     "node-quickbooks": "^2.0.34",
     "pg": "^8.11.3",
-    "pino": "^9.5.0",
+    "pino": "^10.3.0",
     "pino-http": "^10.2.0",
     "stripe": "^14.25.0"
   },
