@@ -1,3 +1,4 @@
+import { logger } from "../logger.js";
 import { getConnectionForUser, upsertConnection } from "./tokens.js";
 
 // node-quickbooks is CommonJS; require() used (see eslint override for this file)
@@ -117,6 +118,7 @@ export async function makeQboClient(userId: string): Promise<QboClientInstance> 
 
 /**
  * Promisified report calls for P&L, Balance Sheet, Cash Flow.
+ * Logs errors with rate-limit awareness (429) for monitoring.
  */
 function reportPromise(
   qbo: QboClientInstance,
@@ -124,7 +126,23 @@ function reportPromise(
   params: Record<string, string>
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    qbo[method](params, (err: Error | null, data: unknown) => (err ? reject(err) : resolve(data)));
+    qbo[method](params, (err: Error | null, data: unknown) => {
+      if (err) {
+        const statusCode = (err as Error & { statusCode?: number }).statusCode;
+        const isRateLimit = statusCode === 429;
+        logger[isRateLimit ? "warn" : "error"](
+          {
+            err,
+            method,
+            params,
+            ...(isRateLimit && { rate_limit: true, message: "QuickBooks API rate limit (429)" }),
+          },
+          isRateLimit ? "QuickBooks API rate limit" : "QuickBooks report error"
+        );
+        return reject(err);
+      }
+      resolve(data);
+    });
   });
 }
 

@@ -22,8 +22,9 @@ This runs, in order:
 1. **Prettier** — `format:check` in backend and excel-addin.
 2. **ESLint** — `lint` with `--max-warnings 0` in both packages.
 3. **TypeScript** — `build` in both packages.
+4. **Tests** — backend Jest (unit + integration).
 
-Fix any failure before opening a PR.
+Fix any failure before opening a PR. CI (GitHub Actions) runs the same on push/PR to `main` and `develop`, plus `npm audit` (high/critical). Dependabot opens weekly dependency update PRs.
 
 ### Per-package commands
 
@@ -34,6 +35,7 @@ npm run format:check   # Check formatting
 npm run format        # Fix formatting
 npm run lint          # ESLint (max-warnings 0)
 npm run build         # TypeScript
+npm test              # Jest (unit + integration)
 
 # Excel add-in
 cd excel-addin

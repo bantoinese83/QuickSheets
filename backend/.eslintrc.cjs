@@ -34,6 +34,10 @@ module.exports = {
       files: ["**/*.d.ts"],
       rules: { "@typescript-eslint/no-namespace": "off" },
     },
+    {
+      files: ["**/*.test.ts"],
+      env: { jest: true, node: true },
+    },
   ],
   ignorePatterns: ["node_modules", "dist"],
 };

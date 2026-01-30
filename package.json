@@ -7,7 +7,8 @@
     "lint": "npm run lint --prefix backend && npm run lint --prefix excel-addin",
     "format:check": "npm run format:check --prefix backend && npm run format:check --prefix excel-addin",
     "format": "npm run format --prefix backend && npm run format --prefix excel-addin",
-    "quality": "npm run format:check && npm run lint && npm run build"
+    "test": "npm run test --prefix backend",
+    "quality": "npm run format:check && npm run lint && npm run build && npm run test"
   },
   "engines": {
     "node": ">=18"

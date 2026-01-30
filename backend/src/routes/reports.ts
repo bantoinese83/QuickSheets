@@ -9,53 +9,11 @@ import {
   fetchBalanceSheet,
   fetchCashFlow,
 } from "../services/quickbooks.js";
+import { logger } from "../logger.js";
 import type { NormalizedReport } from "../types/reports.js";
+import { normalizeReport } from "../utils/normalize-report.js";
 
 const router = Router();
-
-/**
- * Flatten QBO Reports API response to { headers, rows } for Excel.
- * Handles Columns.Column, Rows.Row, and nested Summary/Group with ColData.
- */
-function normalizeReport(report: unknown): NormalizedReport {
-  const r = report as {
-    Columns?: { Column?: { ColTitle?: string }[] };
-    Rows?: {
-      Row?: { ColData?: { value?: string | number }[]; Summary?: unknown; Group?: unknown }[];
-    };
-  };
-  const headers: string[] = [];
-  const rows: (string | number)[][] = [];
-
-  if (r?.Columns?.Column) {
-    for (const c of r.Columns.Column) {
-      headers.push(c.ColTitle ?? "");
-    }
-  }
-
-  function pushRow(row: { ColData?: { value?: string | number }[] }) {
-    if (row?.ColData) {
-      rows.push(row.ColData.map((cell) => cell?.value ?? ""));
-    }
-  }
-
-  const rowList = r?.Rows?.Row;
-  if (rowList) {
-    const rowsArray = Array.isArray(rowList) ? rowList : [rowList];
-    for (const row of rowsArray) {
-      pushRow(row);
-      const group = (row as { Group?: { Row?: unknown } }).Group;
-      if (group?.Row) {
-        const subRows = Array.isArray(group.Row) ? group.Row : [group.Row];
-        for (const sub of subRows) {
-          pushRow(sub as { ColData?: { value?: string | number }[] });
-        }
-      }
-    }
-  }
-
-  return { headers, rows };
-}
 
 /**
  * POST /api/refresh
@@ -125,7 +83,7 @@ router.post("/refresh", requireSession, async (req: Request, res: Response) => {
 
     res.json(result);
   } catch (err) {
-    console.error("Refresh error:", err);
+    logger.error({ err, userId }, "Refresh error");
     res.status(500).json({
       error: "Failed to fetch reports",
       message: err instanceof Error ? err.message : "Unknown error",

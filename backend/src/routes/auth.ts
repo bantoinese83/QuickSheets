@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import OAuthClient from "intuit-oauth";
+import { logger } from "../logger.js";
 import { getOrCreateUser, upsertConnection } from "../services/tokens.js";
 
 const router = Router();
@@ -26,6 +27,7 @@ router.get("/demo", async (req: Request, res: Response) => {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
       path: "/",
     });
     const isDialog = req.query.dialog === "true";
@@ -43,7 +45,7 @@ router.get("/demo", async (req: Request, res: Response) => {
     }
     res.redirect("/?demo=1");
   } catch (err) {
-    console.error("Demo auth error:", err);
+    logger.error({ err }, "Demo auth error");
     res.status(500).send("Failed to start demo session.");
   }
 });
@@ -86,11 +88,12 @@ router.get("/qbo/callback", async (req: Request, res: Response) => {
     const expiresAt = new Date(Date.now() + 3600 * 1000); // 1 hour; intuit-oauth may expose expiry
     await upsertConnection(user.id, realmId, token.access_token, token.refresh_token, expiresAt);
 
-    // Set session cookie so /api/refresh can identify user. In production use httpOnly, secure, sameSite.
+    // Session cookie: httpOnly, SameSite=Lax, Secure in production.
     res.cookie("quicksheets_user_id", user.id, {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
       path: "/",
     });
 

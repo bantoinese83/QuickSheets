@@ -101,15 +101,15 @@ Serve the add-in over HTTPS (required by Office). Options:
 
 Then in Excel: **Insert → Get Add-ins → Upload My Add-in** and select `manifest.xml`.
 
-### 3. Quality (100/100 — zero errors, zero warnings)
+### 3. Quality (zero errors, zero warnings)
 
 From the repo root:
 
 ```bash
-npm run quality   # format:check + lint (ESLint --max-warnings 0) + build
+npm run quality   # format:check + lint (ESLint --max-warnings 0) + build + test
 ```
 
-Or per package: `npm run lint`, `npm run format:check`, `npm run format`, `npm run build`. ESLint (TypeScript) and Prettier are configured for both `backend` and `excel-addin`; lint runs with `--max-warnings 0`.
+Or per package: `npm run lint`, `npm run format:check`, `npm run format`, `npm run build`, `npm run test` (backend Jest unit + integration). CI (GitHub Actions) runs on push/PR to `main` and `develop`: lint, format check, build, backend tests, and `npm audit`. Dependabot opens weekly PRs for `backend`, `excel-addin`, and GitHub Actions.
 
 ### 4. Flow
 
@@ -130,7 +130,8 @@ Or per package: `npm run lint`, `npm run format:check`, `npm run format`, `npm r
 ```
 backend/
   src/
-    index.ts
+    app.ts            # Express app (exported for tests)
+    index.ts          # Starts server
     routes/
       auth.ts        # QBO OAuth, GET /auth/demo
       reports.ts     # POST /api/refresh (demo or QBO, subscription-gated)
@@ -160,9 +161,11 @@ excel-addin/
 ## Security
 
 - **Tokens:** Set `ENCRYPTION_KEY` (32-byte hex or any string, hashed) to encrypt access/refresh tokens at rest. Omit in dev to store plaintext.
+- **Cookies:** Session cookie is `httpOnly`, `SameSite=Lax`, and `Secure` in production.
 - **HTTPS:** In production, `requireHttps` middleware enforces HTTPS (uses `X-Forwarded-Proto` behind a proxy).
 - **CORS:** `CORS_ORIGIN` must be set and not `*` in production.
 - **Landing / privacy:** `GET /` and `GET /privacy` state that report content is not stored; data flows QuickBooks → server → Excel and is discarded.
+- **Logging:** Pino structured logs; QuickBooks report errors (including 429 rate limit) are logged for monitoring.
 
 ## Pricing
 
