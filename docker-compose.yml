@@ -1,0 +1,51 @@
+# QuickSheets – backend + Postgres
+# Usage: cp backend/.env.example backend/.env, then docker compose up -d
+# See docs/DOCKER.md
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: quicksheets
+      POSTGRES_PASSWORD: quicksheets
+      POSTGRES_DB: quicksheets
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quicksheets -d quicksheets"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: quicksheets-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://quicksheets:quicksheets@postgres:5432/quicksheets
+      PORT: 3000
+      CORS_ORIGIN: http://localhost:3000
+      # Use development so HTTPS is not required (for local Docker). Set production when behind HTTPS proxy.
+      NODE_ENV: development
+    env_file:
+      - backend/.env
+    ports:
+      - "3000:3000"
+
+  # Optional: Excel add-in (static). Office requires HTTPS; use tunnel or reverse proxy.
+  # addin:
+  #   build:
+  #     context: ./excel-addin
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8080:80"
+
+volumes:
+  postgres_data:

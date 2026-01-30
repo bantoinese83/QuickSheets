@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+backend/dist/
+excel-addin/dist/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs and debug
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Docker
+.docker/

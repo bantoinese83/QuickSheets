@@ -1,0 +1,29 @@
+{
+  "name": "quicksheets-excel-addin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc && cp src/taskpane/taskpane.html dist/taskpane/",
+    "dev": "tsc -w",
+    "start": "office-addin-debugging start manifest.xml excel",
+    "stop": "office-addin-debugging stop manifest.xml excel",
+    "lint": "eslint src --max-warnings 0",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/office-js": "^1.0.336",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "office-addin-debugging": "^5.0.28",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

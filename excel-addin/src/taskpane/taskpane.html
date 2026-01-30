@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuickSheets</title>
+  <style>
+    body { font-family: Segoe UI, sans-serif; padding: 16px; }
+    button { padding: 8px 16px; margin: 4px; cursor: pointer; }
+    #refresh { margin-top: 8px; }
+    #status { margin-top: 12px; font-size: 14px; color: #666; }
+    .connected { color: #107c10; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2>QuickSheets</h2>
+    <p>Connect QuickBooks and refresh P&amp;L, Balance Sheet, and Cash Flow into this workbook.</p>
+    <button id="connect-qbo">Connect QuickBooks</button>
+    <button id="try-demo">Try with demo data</button>
+    <button id="refresh" disabled>Refresh Reports</button>
+    <div id="status"></div>
+  </div>
+  <script type="module" src="./taskpane.js"></script>
+</body>
+</html>

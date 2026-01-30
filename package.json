@@ -1,0 +1,15 @@
+{
+  "name": "quicksheets",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix backend && npm run build --prefix excel-addin",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix excel-addin",
+    "format:check": "npm run format:check --prefix backend && npm run format:check --prefix excel-addin",
+    "format": "npm run format --prefix backend && npm run format --prefix excel-addin",
+    "quality": "npm run format:check && npm run lint && npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
